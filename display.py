@@ -80,12 +80,8 @@ def Display():
                 print("\nVous ne pouvez pas effectuer d'autres actions sur ce graphe.")
             else:
                 if choix == 4:
-                    graph_copy = deepcopy(graph)
-                    graph_copy.set_rank() # à implémenter
-                    for i in range(len(graph_copy.graph)):
-                        graph.graph[i].rank = graph_copy.graph[i].rank
-                    print("Affichage du rang de chaque tâche")
-                    graph.print_rank() # à implémenter
+                    graph.set_rank()  # Calcul des rangs 
+                    graph.print_rank()  # Affichage des résultats
 
                 elif choix == 5:
                     graph.calculate_early_start() # à implémenter
