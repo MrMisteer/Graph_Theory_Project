@@ -91,6 +91,45 @@ class Graph:
                     print(header_format.format("-"), end=" ")  # - au lieu de 0 pour par confondre avec la durée du sommet alpha
             print()
 
+
+    def verify_cycle(self):
+        graph_copy = self.graph.copy()  # copie du graphe pour ne pas modifier l'original
+
+        while True:
+            entry_nodes = [node for node in graph_copy if not node.dependencies]  # liste qui stocke les tâches sans prédecesseurs
+            
+            for node in entry_nodes: #boucle qui parcout les tâches sans prédecesseurs 
+                graph_copy.remove(node)  #supprime la tâche sans prédecesseur du graphe
+                
+                for task in graph_copy: #boucle qui supprime les dépendances de notre tâche sans prédecesseurs
+                    if node in task.dependencies:
+                        task.dependencies.remove(node) 
+
+            if not entry_nodes:  #si plus aucun noeud d'entrée (donc plus de tâches sans prédecesseurs)
+                if graph_copy:  #si graphe_copy n'est pas vide => il reste des tâches non supprimées => cycle détecté
+                    print("--> Le graphe contient un cycle\n")
+                    return False
+                print("--> Le graphe ne contient pas de cycle\n")
+                return True
+            
+
+    def check_negative_val(self):
+        for task in self.graph:
+            for dependencie in task.dependencies:
+                if task.duration[dependencie.name] < 0:
+                    print(f"--> Oui, le graphe contient une valeure négative : Tache {task.name} -> {dependencie.name} = {task.duration[dependencie.name]}\n")
+                    return False  
+        print("--> Non, le graphe ne contient aucune valeure négative\n")
+        return True
+
+
+
+
+
+
+
+
+
     #sauvegarde les traces dans un nouveau fichier txt (ne marche pas : donne pas la bonne matrice)
     """def save_results(self, graph_number):
         #Sauvegarde la matrice et les résultats des calculs dans un fichier .txt
