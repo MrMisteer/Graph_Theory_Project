@@ -93,24 +93,33 @@ class Graph:
 
 
     def verify_cycle(self):
-        graph_copy = self.graph.copy()  # copie du graphe pour ne pas modifier l'original
+        graph_copy = self.graph.copy()  #copie du graphe pour éviter de modifier l'original
 
         while True:
-            entry_nodes = [node for node in graph_copy if not node.dependencies]  # liste qui stocke les tâches sans prédecesseurs
-            
-            for node in entry_nodes: #boucle qui parcout les tâches sans prédecesseurs 
-                graph_copy.remove(node)  #supprime la tâche sans prédecesseur du graphe
-                
-                for task in graph_copy: #boucle qui supprime les dépendances de notre tâche sans prédecesseurs
-                    if node in task.dependencies:
-                        task.dependencies.remove(node) 
+            entry_nodes = [node for node in graph_copy if not node.dependencies]  #contient les points d'éntrées (sommets sans prédecesseurs)
 
-            if not entry_nodes:  #si plus aucun noeud d'entrée (donc plus de tâches sans prédecesseurs)
-                if graph_copy:  #si graphe_copy n'est pas vide => il reste des tâches non supprimées => cycle détecté
-                    print("--> Le graphe contient un cycle\n")
+            if not entry_nodes:  # Si plus aucun point d'entrée
+                if graph_copy:  # S'il reste des sommets -> Cycle détecté
+                    print("\n-> Le graphe contient un cycle ❌\n")
                     return False
-                print("--> Le graphe ne contient pas de cycle\n")
+                print("\n-> Il n’y a pas de circuit ✅\n")
                 return True
+
+            # Affichage des points d’entrée avant suppression
+            print("Points d’entrée :", " ".join(node.name for node in entry_nodes))
+
+            # Suppression des points d’entrée
+            for node in entry_nodes:
+                graph_copy.remove(node)  #supprimer les tâches sans prédécesseurs
+                for task in graph_copy:
+                    if node in task.dependencies:
+                        task.dependencies.remove(node)  #supprimer les dépendances
+
+            #affichage des sommets restants après suppression
+            remaining_nodes = " ".join(node.name for node in graph_copy) if graph_copy else "Aucun" #si graph_copy est vide on affiche "Aucun"
+            print("Suppression des points d’entrée")
+            print(f"Sommets restant : {remaining_nodes}\n")
+
             
 
     def check_negative_val(self):
@@ -122,42 +131,4 @@ class Graph:
         print("--> Non, le graphe ne contient aucune valeure négative\n")
         return True
 
-
-
-
-
-
-
-
-
-    #sauvegarde les traces dans un nouveau fichier txt (ne marche pas : donne pas la bonne matrice)
-    """def save_results(self, graph_number):
-        #Sauvegarde la matrice et les résultats des calculs dans un fichier .txt
-        file_name = f"results_table_{graph_number}.txt"
-        with open(file_name, "w", encoding="utf-8") as f:
-            f.write(f"Résultats pour le fichier table {graph_number}.txt\n\n")
-
-            f.write("Matrice des valeurs du graphe :\n")
-            max_length = max(len(str(task.name)) for task in self.graph)
-            header_format = "{:>" + str(max_length) + "}"
-            headers = " ".join(header_format.format(task.name) for task in self.graph)
-            f.write(" " + headers + "\n")
-            for task in self.graph:
-                row = " ".join(header_format.format(task.duration.get(target.name, "-")) for target in self.graph)
-                f.write(f"{header_format.format(task.name)} {row}\n")
-            f.write("\n")
-
-            f.write("Chemin critique :\n")
-            self.display_critical_path(f)
-
-            f.write("\nDates au plus tôt :\n")
-            self.display_early_start(f)
-
-            f.write("\nDates au plus tard :\n")
-            self.display_late_start(f)
-
-            f.write("\nMarges :\n")
-            self.compute_floats(f)
-
-        print(f"Les résultats ont été sauvegardés dans {file_name}")"""
 
