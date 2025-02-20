@@ -7,7 +7,7 @@ def Display():
     running = True
         
     while running:
-        print("\nBienvenue dans notre projet de théorie des graphes !")
+        print("\nBienvenue dans notre projet de théorie des graphes !\n")
         print("Choisissez un nombre entre 1 et 14 pour sélectionner un graphe. Pour quitter, tapez 0.")
         
         while True:
@@ -59,23 +59,25 @@ def Display():
                 print("Affichage de la matrice des valeurs")
                 graph.print_matrix()
             elif choix == 3:
-                print("Vérification des cycles dans le graphe...")
-                graph_copy = deepcopy(graph)
-                cycle = graph_copy.verify_cycle() #implémenter la fonction verify_cycle()
-                print("Le graphe contient-il des valeurs négatives ?")
-                negative = graph.check_negative_val() # à implémenter
-                if negative and cycle:
-                    print("C'est un graphe d'ordonnancement.")
+                print("\nVérification des cycles dans le graphe...\n")
+                graph_copy = deepcopy(graph)  # Copie pour éviter de modifier l'original
+                cycle = graph_copy.verify_cycle()  # Vérifie l'absence de cycles
+    
+                print("Le graphe contient-il des valeurs négatives ?\n")
+                negative = graph.check_negative_val()  # Vérifie l'absence de valeurs négatives
+
+                if cycle and negative:  # Vérifie que le graphe est bien un graphe d'ordonnancement
+                    print("✅ Donc c'est un graphe d'ordonnancement.\n")
                     check_scheduling = 1
                 else:
-                    print("Ce n'est pas un graphe d'ordonnancement.")
+                    print("❌ Donc ce n'est pas un graphe d'ordonnancement.\n")
                     check_scheduling = 0
 
             elif choix == 9:
                 graph.save_results(graph_number) #a activer à la fin pour la sauvegarde 
             
             if check_scheduling != 1:
-                print("Vous ne pouvez pas effectuer d'autres actions sur ce graphe.")
+                print("\nVous ne pouvez pas effectuer d'autres actions sur ce graphe.")
             else:
                 if choix == 4:
                     graph_copy = deepcopy(graph)
