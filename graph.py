@@ -6,8 +6,8 @@ class Task(): # représentation d'une tâche dans le graphe
         self.children = []  # liste qui stocke les sucesseurs
         self.out_link = int(out_link)  # durée de la tâche (indiquée dans le fichier d'entrée)
         self.rank = 0  # rang de la tâche (pour l'ordonnancement)
-        self.early_date = 0  # date au plus tôt de la tâche (servira pour après)
-        self.late_date = 0  # date au plus tard de la tâche (servira pour après)
+        self.early_date = (0, None)  # (date au plus tôt de la tâche, predecesseur) (servira pour après)
+        self.late_date = (0, None)  # (date au plus tard de la tâche, predecesseur) (servira pour après)
 
     def set_dependencies(self, dependencie): # méthode qui permet d'ajouter les prédécesseurs dans la liste dependencies
         self.dependencies.append(dependencie)  
@@ -118,9 +118,7 @@ class Graph:
             #affichage des sommets restants après suppression
             remaining_nodes = " ".join(node.name for node in graph_copy) if graph_copy else "Aucun" #si graph_copy est vide on affiche "Aucun"
             print("Suppression des points d’entrée")
-            print(f"Sommets restant : {remaining_nodes}\n")
-
-            
+            print(f"Sommets restant : {remaining_nodes}\n")      
 
     def check_negative_val(self):
         for task in self.graph:
@@ -131,4 +129,29 @@ class Graph:
         print("--> Non, le graphe ne contient aucune valeure négative\n")
         return True
 
+
+    def order_by_rank(self): # a tester
+        for i in range(len(self.graph) - 1):
+            for j in range(i, len(self.graph)):
+                if (self.graph[i].rank > self.graph[j].rank):
+                    self.graph[i], self.graph[j] = self.graph[j], self.graph[i]
+
+    def calculate_early_start(self): # a tester
+        self.order_by_rank()  # Tri des tâches par rang
+
+        for task in self.graph :
+            dependencies_dates = [] # correspond a la ligne "dates par predecesseur"
+            for dependencie in task.dependencies :
+                print(task.duration[dependencie.name])
+                dependencies_dates.append( (dependencie.early_date[0] + task.duration[dependencie.name], dependencie) )
+            maxi = (0, None)
+            for i in range(len(dependencies_dates)) :
+                if (maxi[0] < dependencies_dates[i][0]):
+                    maxi = dependencies_dates[i]
+            task.early_date = maxi
+
+    def display_early_start(self):
+        print("   rank   |   tasks   |   early_date(origin)")
+        for task in self.graph :
+            print("     "+str(task.rank)+"   |    "+str(task.name)+"     |   "+str(task.early_date[0])+"("+str( task.early_date[1].name if  task.early_date[1] != None else None)+")")
 
