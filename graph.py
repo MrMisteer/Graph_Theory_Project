@@ -174,7 +174,7 @@ class Graph:
         for task in tasks_sorted:
             print(f"Tâche {task.name} → Rang : {task.rank}")
 
-    def order_by_rank(self): # a tester
+    def order_by_rank(self):
         for i in range(len(self.graph) - 1):
             for j in range(i, len(self.graph)):
                 if (self.graph[i].rank > self.graph[j].rank):
@@ -183,15 +183,17 @@ class Graph:
                     self.graph[j] = temp
 
     def calculate_early_start(self): # a tester
+        self.set_rank() # a faire : faire en sorte de n'appeler qu'une fois set_rank pour tt le pgm
         self.order_by_rank()  # Tri des tâches par rang
 
         for task in self.graph :
             dependencies_dates = [] # correspond a la ligne "dates par predecesseur"
             for dependencie in task.dependencies :
-                print(task.duration[dependencie.name])
                 dependencies_dates.append( (dependencie.early_date[0] + task.duration[dependencie.name], dependencie) )
             maxi = (0, None)
             for i in range(len(dependencies_dates)) :
+                if (maxi[1] == None):
+                    maxi = dependencies_dates[i]
                 if (maxi[0] < dependencies_dates[i][0]):
                     maxi = dependencies_dates[i]
             task.early_date = maxi
