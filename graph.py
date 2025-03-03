@@ -182,7 +182,7 @@ class Graph:
                     self.graph[i] = self.graph[j] 
                     self.graph[j] = temp
 
-    def calculate_early_start(self): # a tester
+    def calculate_early_start(self):
         self.set_rank() # a faire : faire en sorte de n'appeler qu'une fois set_rank pour tt le pgm
         self.order_by_rank()  # Tri des tâches par rang
 
