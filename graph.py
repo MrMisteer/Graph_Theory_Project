@@ -129,12 +129,58 @@ class Graph:
         print("--> Non, le graphe ne contient aucune valeure négative\n")
         return True
 
+    def set_rank(self):
+        def copy(self):
+            g_copy = Graph(self.lines)
+            return g_copy
+        
+        g_copy = copy(self) # copie du graphe
+
+        rank = 0
+        tasks_without_predecessors = []
+        for task in g_copy.graph:
+            if not task.dependencies:  # Si la tâche n'a pas de prédécesseur
+                tasks_without_predecessors.append(task)
+
+        while tasks_without_predecessors:
+            next_tasks = []  # Liste des tâches qui seront traitées au prochain rang
+
+            for task in tasks_without_predecessors:
+                task.rank = rank  # Assigner le rang actuel
+
+                # Parcourir les tâches qui dépendent de la tâche actuelle
+                for successor in g_copy.graph:
+                    if task in successor.dependencies:
+                        successor.dependencies.remove(task)  # Supprimer la dépendance traitée
+                        if not successor.dependencies:  # Si plus de dépendance, la tâche suivante peut être traitée au prochain tour
+                            next_tasks.append(successor)
+
+            # Passer au rang suivant
+            tasks_without_predecessors = next_tasks
+            rank += 1
+
+            #associer les rangs au taches : 
+            for task_copy in g_copy.graph :
+                for task in self.graph :
+                    if task.name == task_copy.name : 
+                        task.rank = task_copy.rank
+
+    def print_rank(self):
+        self.set_rank() # a faire : faire en sorte de n'appeler qu'une fois set_rank pour tt le pgm
+        print("\nListe des tâches avec leur rang :")
+        tasks_sorted = list(self.graph)  # Copie la liste
+        tasks_sorted.sort(key=lambda task: task.rank)  # Trier par rang
+
+        for task in tasks_sorted:
+            print(f"Tâche {task.name} → Rang : {task.rank}")
 
     def order_by_rank(self): # a tester
         for i in range(len(self.graph) - 1):
             for j in range(i, len(self.graph)):
                 if (self.graph[i].rank > self.graph[j].rank):
-                    self.graph[i], self.graph[j] = self.graph[j], self.graph[i]
+                    temp = self.graph[i]
+                    self.graph[i] = self.graph[j] 
+                    self.graph[j] = temp
 
     def calculate_early_start(self): # a tester
         self.order_by_rank()  # Tri des tâches par rang

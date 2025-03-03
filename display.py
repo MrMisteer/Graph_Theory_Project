@@ -80,7 +80,7 @@ def Display():
                 print("\nVous ne pouvez pas effectuer d'autres actions sur ce graphe.")
             else:
                 if choix == 4:
-                    graph.set_rank()  # Calcul des rangs 
+                    #graph.set_rank()  # Calcul des rangs dans print_rank # a faire : faire en sorte de n'appeler qu'une fois set_rank pour tt le pgm
                     graph.print_rank()  # Affichage des résultats
 
                 elif choix == 5:
