@@ -203,7 +203,7 @@ class Graph:
         for task in self.graph :
             print("     "+str(task.rank)+"   |    "+str(task.name)+"     |   "+str(task.early_date[0])+"("+str( task.early_date[1].name if  task.early_date[1] != None else None)+")")
 
-    def compute_late_start(self):
+    def calculate_late_start(self):
         #Tri des tâches selon leur rang
         self.order_by_rank()
 
