@@ -95,11 +95,11 @@ def Display():
 
                 elif choix == 7:
                     print("Affichage des marges")
-                    graph.compute_floats() # à implémenter
+                    graph.compute_floats()
                     
                 elif choix == 8:
                     print("Affichage du chemin critique")
-                    graph.display_critical_path() # à implémenter
+                    graph.display_critical_path()
 
                 
                 

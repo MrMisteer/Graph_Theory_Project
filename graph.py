@@ -231,3 +231,64 @@ class Graph:
         for task in self.graph:
             print("     " + str(task.rank) + "   |    " + str(task.name) + "     |   " + str(
                 task.late_date[0]) + "(" + str(task.late_date[1].name if task.late_date[1] != None else None) + ")")
+            
+    def compute_floats(self):
+        #Calcul des marges totales et libres pour chaque tâche du graphe.
+        marges_totales = {}
+        marges_libres = {}
+
+
+        print("\nMarges Totales :")
+        for task in self.graph:
+            # Récupération des dates
+            date_au_plus_tot = task.early_date[0]
+            date_au_plus_tard = task.late_date[0]
+
+            # Calcul de la marge totale (mT) : mT = T - τ
+            marge_totale = date_au_plus_tard - date_au_plus_tot
+            marges_totales[task.name] = marge_totale
+
+            #affichage détaillé du calcul
+            print(f"mT(Tâche {task.name}) = {date_au_plus_tard} - {date_au_plus_tot} = {marge_totale}")
+
+        print("\nMarges Libres :")
+        for task in self.graph:
+            date_au_plus_tot = task.early_date[0]
+            duree = int(task.out_link)
+
+            # Gestion des successeurs
+            succ_dates = [succ.early_date[0] for succ in task.children] if task.children else []
+            min_succ_date = min(succ_dates) if succ_dates else date_au_plus_tot + duree
+
+            # Calcul de la marge libre (mL)
+            marge_libre = min_succ_date - (date_au_plus_tot + duree)
+            marges_libres[task.name] = marge_libre if marge_libre != float('inf') else 0
+
+            #affichage détaillé du calcul
+            print(f"mL(Tâche {task.name}) = {min_succ_date} - ({date_au_plus_tot} + {duree}) = {marge_libre}")
+
+        # Stocker les marges dans l'objet graph
+        self.marges_totales = marges_totales
+        self.marges_libres = marges_libres
+
+        return marges_totales, marges_libres
+
+    
+    def display_critical_path(self):
+        #Affichage du chemin critique du projet.
+        chemin_critique = []
+
+        # Vérifie si les marges sont calculées
+        if not hasattr(self, 'marges_totales'):
+            self.compute_floats()
+
+        # Identification des tâches critiques (mT = 0)
+        for task in self.graph:
+            if self.marges_totales[task.name] == 0:
+                chemin_critique.append(task)
+
+        # Tri des tâches critiques dans l'ordre chronologique (par date au plus tôt)
+        chemin_critique = sorted(chemin_critique, key=lambda x: x.early_date[0])
+
+        # Affichage du chemin critique
+        print("Chemin critique : ", ' -> '.join(task.name for task in chemin_critique))
