@@ -233,45 +233,22 @@ class Graph:
                 task.late_date[0]) + "(" + str(task.late_date[1].name if task.late_date[1] != None else None) + ")")
             
     def compute_floats(self):
-        #Calcul des marges totales et libres pour chaque tâche du graphe.
-        marges_totales = {}
-        marges_libres = {}
+        
+        print("\nMarges Totales (TF) des tâches :\n")
+        print(f"{'Tâche':<10}{'ES':<10}{'LS':<10}{'TF'}")
+        print("-" * 35)
 
-
-        print("\nMarges Totales :")
         for task in self.graph:
-            # Récupération des dates
+            #récupération des dates au plus tôt et au plus tard
             date_au_plus_tot = task.early_date[0]
             date_au_plus_tard = task.late_date[0]
 
-            # Calcul de la marge totale (mT) : mT = T - τ
-            marge_totale = date_au_plus_tard - date_au_plus_tot
-            marges_totales[task.name] = marge_totale
+            #calcul de la marge totale (TF) : TF = LS - ES
+            task.float_time = date_au_plus_tard - date_au_plus_tot
 
             #affichage détaillé du calcul
-            print(f"mT(Tâche {task.name}) = {date_au_plus_tard} - {date_au_plus_tot} = {marge_totale}")
+            print(f"{task.name:<10}{date_au_plus_tot:<10}{date_au_plus_tard:<10}{task.float_time}")
 
-        print("\nMarges Libres :")
-        for task in self.graph:
-            date_au_plus_tot = task.early_date[0]
-            duree = int(task.out_link)
-
-            # Gestion des successeurs
-            succ_dates = [succ.early_date[0] for succ in task.children] if task.children else []
-            min_succ_date = min(succ_dates) if succ_dates else date_au_plus_tot + duree
-
-            # Calcul de la marge libre (mL)
-            marge_libre = min_succ_date - (date_au_plus_tot + duree)
-            marges_libres[task.name] = marge_libre if marge_libre != float('inf') else 0
-
-            #affichage détaillé du calcul
-            print(f"mL(Tâche {task.name}) = {min_succ_date} - ({date_au_plus_tot} + {duree}) = {marge_libre}")
-
-        # Stocker les marges dans l'objet graph
-        self.marges_totales = marges_totales
-        self.marges_libres = marges_libres
-
-        return marges_totales, marges_libres
 
     
     def display_critical_path(self):
