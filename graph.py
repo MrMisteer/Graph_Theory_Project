@@ -13,6 +13,9 @@ class Task():  # représentation d'une tâche dans le graphe
                          dependencie):  # méthode qui permet d'ajouter les prédécesseurs dans la liste dependencies
         self.dependencies.append(dependencie)
 
+    def set_children(self,child):  # méthode qui permet d'ajouter les successeurs dans la liste children
+        self.children.append(child)
+
 
 class Graph:
     def __init__(self, lines):
@@ -217,32 +220,77 @@ class Graph:
         # Tri des tâches selon leur rang
         self.order_by_rank()
 
-        #Calcul des dates au plus tot si cela n'est pas deja fait
-        if (self.graph[0].early_date == (0, None)) :
+        # Calcul des dates au plus tot si cela n'est pas deja fait
+        if self.graph[0].early_date == (0, None):
             self.calculate_early_start()
-            
+
+        # Réinitialiser la liste des enfants pour toutes les tâches
+        for task in self.graph:
+            task.children = []
+
+        # Construire les relations de successeurs (children)
+        for task in self.graph:
+            for other_task in self.graph:
+                if task in other_task.dependencies:
+                    task.set_children(other_task)  # Utiliser la méthode set_children
+
         # Initialisation de la date au plus tard pour la tâche finale
-        last_task = self.graph[-1]  # On prend la derniere tache du graphe
-        last_task.late_date = (last_task.early_date[0],last_task)  # On utilise la convention que la date au plus tard de fin de projet soit égale à sa date au plus tôt.
+        last_task = self.graph[-1]  # On prend la dernière tâche du graphe
+        last_task.late_date = (last_task.early_date[0], last_task)  # Convention: date au plus tard = date au plus tôt
 
-        # On parcourt les tâches en ordre inverse
-        for task in reversed(self.graph[:-1]):  # Utilisation de la fonction "reversed" pour prendre la liste à l'envers
-            # Si la tâche a des successeurs, on calcule sa date au plus tard
-            if task.children:
-                min_late_date = (
-                float('inf'), 0)  # Initialisation à l'infini pour être sûr qu'elle prenne notre résultat
-                # On parcourt tous les successeurs et on prend le plus petit
-                for child in task.children:
-                    min_late_date = min(min_late_date, child.late_date[0] - child.duration[task.name])
+        # Initialisation des autres tâches avec une valeur infinie
+        for task in self.graph[:-1]:  # Toutes les tâches sauf la dernière
+            task.late_date = (float('inf'), None)
 
-                # On met à jour la date au plus tard
-                task.late_date = (min_late_date, task)
-            else:
-                # Si la tâche n'a pas de successeurs, sa date reste la même que la date au plus tôt
-                task.late_date = (task.early_date[0], task)
+        # On parcourt les tâches en ordre inverse de rang
+        for task in reversed(self.graph):
+            # Pour chaque successeur (enfant) de la tâche
+            for child in task.children:
+                # Date au plus tard du successeur - durée de l'arc entre la tâche actuelle et le successeur
+                late_date_via_child = child.late_date[0] - child.duration[task.name]
+
+                # Si cette date est plus petite que la date actuelle, on la met à jour
+                if late_date_via_child < task.late_date[0]:
+                    task.late_date = (late_date_via_child, child)
 
     def display_late_start(self):
         print("   rank   |   tasks   |   late_date(origin)")
         for task in self.graph:
             print("     " + str(task.rank) + "   |    " + str(task.name) + "     |   " + str(
                 task.late_date[0]) + "(" + str(task.late_date[1].name if task.late_date[1] != None else None) + ")")
+
+    def compute_floats(self):
+
+        print("\nMarges Totales (TF) des tâches :\n")
+        print(f"{'Tâche':<10}{'ES':<10}{'LS':<10}{'TF'}")
+        print("-" * 35)
+
+        for task in self.graph:
+            # récupération des dates au plus tôt et au plus tard
+            date_au_plus_tot = task.early_date[0]
+            date_au_plus_tard = task.late_date[0]
+
+            # calcul de la marge totale (TF) : TF = LS - ES
+            task.float_time = date_au_plus_tard - date_au_plus_tot
+
+            # affichage détaillé du calcul
+            print(f"{task.name:<10}{date_au_plus_tot:<10}{date_au_plus_tard:<10}{task.float_time}")
+
+    def display_critical_path(self):
+        # Affichage du chemin critique du projet.
+        chemin_critique = []
+
+        # Vérifie si les marges sont calculées
+        if not hasattr(self, 'marges_totales'):
+            self.compute_floats()
+
+        # Identification des tâches critiques (mT = 0)
+        for task in self.graph:
+            if self.marges_totales[task.name] == 0:
+                chemin_critique.append(task)
+
+        # Tri des tâches critiques dans l'ordre chronologique (par date au plus tôt)
+        chemin_critique = sorted(chemin_critique, key=lambda x: x.early_date[0])
+
+        # Affichage du chemin critique
+        print("Chemin critique : ", ' -> '.join(task.name for task in chemin_critique))
