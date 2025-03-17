@@ -89,7 +89,7 @@ def Display():
                     graph.display_early_start()
 
                 elif choix == 6:
-                    graph.calculate_late_start() # à implémenter
+                    graph.compute_late_start() # à implémenter
                     print("Affichage de la date au plus tard")
                     graph.display_late_start() # à implémenter
 

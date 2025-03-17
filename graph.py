@@ -228,17 +228,17 @@ class Graph:
         for task in self.graph:
             task.children = []
 
-        # Construire les relations de successeurs (children)
+        # Construire les relations de successeurs
         for task in self.graph:
-            for other_task in self.graph:
-                if task in other_task.dependencies:
-                    task.set_children(other_task)  # Utiliser la méthode set_children
+            for children in self.graph:
+                if task in children.dependencies:
+                    task.set_children(children)
 
         # Initialisation de la date au plus tard pour la tâche finale
         last_task = self.graph[-1]  # On prend la dernière tâche du graphe
         last_task.late_date = (last_task.early_date[0], last_task)  # Convention: date au plus tard = date au plus tôt
 
-        # Initialisation des autres tâches avec une valeur infinie
+        # Initialisation des autres tâches avec une valeur infinie pour être sûr de prende la valeur calculées
         for task in self.graph[:-1]:  # Toutes les tâches sauf la dernière
             task.late_date = (float('inf'), None)
 
@@ -261,7 +261,7 @@ class Graph:
 
     def compute_floats(self):
 
-        print("\nMarges Totales (TF) des tâches :\n")
+        print("\nMargesTotales (TF) des tâches :\n")
         print(f"{'Tâche':<10}{'ES':<10}{'LS':<10}{'TF'}")
         print("-" * 35)
 
